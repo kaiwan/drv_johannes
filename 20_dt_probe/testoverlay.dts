@@ -1,6 +1,7 @@
 /dts-v1/;
 /plugin/;
 / {
+	/* meant for Raspberry Pi family */
 	compatible = "brcm,bcm2835";
 	fragment@0 {
 		target-path = "/";

@@ -1,0 +1,14 @@
+#!/bin/bash
+# test the 20_dt_probe driver
+source ../common
+DRV=dt_probe
+DTB=testoverlay.dtbo
+
+#make || die "make failed"
+sudo rmmod ${DRV} 2>/dev/null || true
+sudo insmod ${DRV}.ko || die "failed to insmod"
+
+# trigger it
+sudo dtoverlay ${DTB}
+
+runcmd "sudo dmesg|tail"
