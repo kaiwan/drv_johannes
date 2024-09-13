@@ -1,7 +1,7 @@
 obj-m += serdev_echo.o
 
 all: module dt
-	echo Builded Device Tree Overlay and kernel module
+	echo Built the Device Tree Overlay and kernel module
 
 module:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
