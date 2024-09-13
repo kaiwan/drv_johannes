@@ -37,14 +37,19 @@ static int __init my_init(void)
 	pr_info("init\n");
 	PRINT_CTX();
 
+	// set DMA capability mask
 	dma_cap_zero(mask);
 	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, mask);
+	// try to allocate an exclusive DMA channel
 	chan = dma_request_channel(mask, NULL, NULL);
 	if(!chan) {
 		pr_info("Error requesting dma channel\n");
 		return -ENODEV;
 	}
 
+	/* Perform a consistent/coherent DMA buffer alloc
+	 * Guarantees cache coherence b/w the CPU and DMA
+	 */
 	src_buf = dma_alloc_coherent(chan->device->dev, 1024, &src_addr, GFP_KERNEL);
 	dst_buf = dma_alloc_coherent(chan->device->dev, 1024, &dst_addr, GFP_KERNEL);
 
@@ -54,6 +59,9 @@ static int __init my_init(void)
 	pr_info("Before DMA Transfer: src_buf[0] = %x\n", src_buf[0]);
 	pr_info("Before DMA Transfer: dst_buf[0] = %x\n", dst_buf[0]);
 
+	/* Prepare a DMA memcpy descriptor
+	 * returns a DMA 'async transaction descriptor'
+	 */
 	chan_desc = dmaengine_prep_dma_memcpy(chan, dst_addr, src_addr, 1024, DMA_MEM_TO_MEM);
 	if(!chan_desc) {
 		pr_info("Error requesting dma channel\n");
@@ -68,14 +76,19 @@ static int __init my_init(void)
 
 	cookie = dmaengine_submit(chan_desc);
 
-	/* Fire the DMA transfer */
+	/* Fire the DMA transfer - flushes pending transactions to h/w 
+	 * "This allows drivers to push copies to HW in batches,
+	 *  reducing MMIO writes where possible."
+	 */
 	dma_async_issue_pending(chan);
 
+	// timeout of 3s
 	if(wait_for_completion_timeout(&cmp, msecs_to_jiffies(3000)) <= 0) {
 		pr_info("Timeout!\n");
 		status = -1;
 	}
 
+	// poll for transaction completion
 	status = dma_async_is_tx_complete(chan, cookie, NULL, NULL);
 	if(status == DMA_COMPLETE) {
 		pr_info("DMA transfer has completed!\n");
@@ -104,5 +117,3 @@ static void __exit my_exit(void) {
 
 module_init(my_init);
 module_exit(my_exit);
-
-
