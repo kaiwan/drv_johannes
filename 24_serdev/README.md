@@ -4,4 +4,5 @@ For this driver you need an UART-to-USB Adpter to receive and send characters to
 
 Run `sudo raspi-config`, go to *Interfaces* -> *Serial* and Disable *Login Shell over SSH* but enable *Serial Port*.
 
+Additionally, the 'run' script helps you set things up...
 
