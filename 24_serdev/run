@@ -1,0 +1,67 @@
+#!/bin/bash
+# test the 24_serdev echo driver
+source ../common
+DRV=serdev_echo
+DTBO=serdev_overlay
+
+SKIP_RPICONFIG=0
+[[ $# -ge 1 ]] && [[ "$1" = "-s" ]] && SKIP_RPICONFIG=1
+[[ $# -ge 1 ]] && [[ "$1" = "-h" ]] && {
+  echo "Usage: $0 [option]
+ -s : skip the raspi-config
+ -h : show this help screen"
+ exit 0
+}
+
+echo "Setting up the DTB overlay"
+RPI_CONFIG=/boot/firmware/config.txt  # new! Careful..
+grep "${DTBO}" ${RPI_CONFIG} >/dev/null || {
+  sudo cp ${DTBO}.dtbo /boot/overlays
+  sed -e '$a\'$'\n''dtoverlay=${DTBO}' ${RPI_CONFIG}
+}
+
+step=1
+[[ ${SKIP_RPICONFIG} -eq 0 ]] && {
+echo "${step}. Launching raspi-config:
+-----------------------------------------------------
+Navigate to the Interface Options / Serial Port 
+ENSURE that 
+  'login shell over serial' is Disabled
+  'serial interface' is Enabled
+-----------------------------------------------------
+
+This is required the first time, after that, run this script with -s option to skip this step
+
+Further, if this is the first time OR the DTBO has been updated, you'll need to
+*reboot* to have it take effect...
+After rebooting, run this script again...
+
+Press [Enter] to proceed...
+"
+read
+let step=step+1
+sudo raspi-config
+}
+
+sudo rmmod ${DRV} 2>/dev/null || true
+sudo insmod ${DRV}.ko || die "failed to insmod"
+
+echo "
+-----------------------------------------------------
+${step}. In another terminal, run minicom or screen as root; setup tty correctly (as /dev/ttyUSB0 ...) and baud rate as 9600"
+let step=step+1
+echo "${step}. You should see the \'Type something: \' prompt from our driver ${DRV}."
+let step=step+1
+echo "${step}. Also ensure that /boot/cmdline.txt (kernel cmdline) has console=serial0,9600 "
+echo "Now typing any characters in the serial terminal will result in them being seen - echo-ed back!"
+echo "Proving it works..."
+echo "-----------------------------------------------------"
+
+# DT node
+DTNODE=$(find /proc/device-tree/ -name "echodev")
+[[ ! -z "${DTNODE}" ]] && {
+ echo "The Device Tree has it here: ${DTNODE}"
+ ls -l ${DTNODE}
+} || echo "No DT node found?"
+
+exit 0
