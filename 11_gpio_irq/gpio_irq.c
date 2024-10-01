@@ -1,6 +1,23 @@
 /*
  * Credit: Johannes 4 Linux : @Johannes4Linux on GitHub
  * These modules are meant to be run on the Raspberry Pi family boards only
+ *
+ * Sample output:
+ rpi $ dmesg
+[ 1874.948046] gpio_irq:ModuleInit(): Loading module...
+[ 1874.948179] gpio_irq:ModuleInit(): Done!
+[ 1874.948185] gpio_irq:ModuleInit(): GPIO 17 is mapped to IRQ Nr.: 56
+[ 2409.262021] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2421.193152] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2421.199330] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2421.204918] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2421.260440] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2421.266042] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+[ 2422.017707] gpio_irq:gpio_irq_handler(): IRQ 56 triggered!
+...
+ * How did the interrupt occur? well, you should set the line high..
+ * A 'stupid' way - read risky! - is to trigger it by fiddling around GND and
+ * pin 11 with a multimeter :-p
  */
 #define pr_fmt(fmt) "%s:%s(): " fmt, KBUILD_MODNAME, __func__
 
@@ -15,7 +32,9 @@ MODULE_AUTHOR("Johannes 4 GNU/Linux");
 MODULE_DESCRIPTION("A simple LKM for a gpio interrupt");
 
 #define GPIO_LINE	17
-// GPIO 17 is phy/BCM pin 11 and is sixth pin from the 3.3V first pin on the rail
+/* GPIO 17 is phy/BCM pin 11 and is sixth pin from the 3.3V first pin on the rail
+ * See https://pinout.xyz/
+ */
 /* below variable will hold the pin number of interrupt controller to which
  * GPIO GPIO_LINE is mapped at runtime via gpio_to_irq()
  */
