@@ -23,7 +23,12 @@ sudo apt upgrade
 
 You also need the build utils (make, gcc, ...) but they come preinstalled on Raspbian.
 
+See https://pinout.xyz/ for the detailed Raspberry Pi family GPIO pinout!
+
+
 ## Content
+
+(In my fork, we use only a few of the following)
 
 In this repo you can find examples for:
 1. Simple Kernel Module
