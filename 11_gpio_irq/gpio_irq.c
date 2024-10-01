@@ -1,4 +1,7 @@
-
+/*
+ * Credit: Johannes 4 Linux : @Johannes4Linux on GitHub
+ * These modules are meant to be run on the Raspberry Pi family boards only
+ */
 #define pr_fmt(fmt) "%s:%s(): " fmt, KBUILD_MODNAME, __func__
 
 #include <linux/module.h>
@@ -52,6 +55,11 @@ static int __init ModuleInit(void)
 
 	/* Setup the interrupt */
 	irq_number = gpio_to_irq(GPIO_LINE);
+	if (irq_number < 0) {
+		pr_info("Error!\nCannot allocate IRQ line\n");
+		gpio_free(GPIO_LINE);
+		return irq_number;
+	}
 
 	if(request_irq(irq_number, gpio_irq_handler, IRQF_TRIGGER_RISING, "my_gpio_irq", NULL) != 0){
 		pr_info("Error!\nCan not request interrupt nr.: %d\n", irq_number);
