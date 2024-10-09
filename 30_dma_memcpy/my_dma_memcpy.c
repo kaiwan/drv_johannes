@@ -33,7 +33,7 @@ void my_dma_transfer_completed(void *param)
 static int __init my_init(void)
 {
 	dma_cap_mask_t mask;
-	struct dma_chan *chan;
+	struct dma_chan *dma_channel;
 	struct dma_async_tx_descriptor *chan_desc;
 	dma_cookie_t cookie;
 	dma_addr_t src_addr, dst_addr;
@@ -59,18 +59,21 @@ static int __init my_init(void)
 	else if (board == BOARD_IS_RPI)
 		dma_cap_set(DMA_MEMCPY | DMA_SLAVE | DMA_PRIVATE, mask);
 
-	// try to allocate an exclusive DMA channel
-	chan = dma_request_channel(mask, NULL, NULL);
-	if(!chan) {
+	/* Try to allocate an exclusive DMA channel; see available DMA
+	 * channels under /sys/class/dma
+	 */
+	dma_channel = dma_request_channel(mask, NULL, NULL);
+	if(!dma_channel) {
 		pr_info("Error requesting dma channel\n");
 		return -ENODEV;
 	}
+	pr_info("Got DMA channel %s (%d)\n", dma_channel->name, dma_channel->chan_id);
 
 	/* Perform a consistent/coherent DMA buffer alloc
 	 * Guarantees cache coherence b/w the CPU and DMA
 	 */
-	src_buf = dma_alloc_coherent(chan->device->dev, 1024, &src_addr, GFP_KERNEL);
-	dst_buf = dma_alloc_coherent(chan->device->dev, 1024, &dst_addr, GFP_KERNEL);
+	src_buf = dma_alloc_coherent(dma_channel->device->dev, 1024, &src_addr, GFP_KERNEL);
+	dst_buf = dma_alloc_coherent(dma_channel->device->dev, 1024, &dst_addr, GFP_KERNEL);
 
 	memset(src_buf, 0x12, 1024);
 	memset(dst_buf, 0x0, 1024);
@@ -81,7 +84,7 @@ static int __init my_init(void)
 	/* Prepare a DMA memcpy descriptor
 	 * returns a DMA 'async transaction descriptor'
 	 */
-	chan_desc = dmaengine_prep_dma_memcpy(chan, dst_addr, src_addr, 1024, DMA_MEM_TO_MEM);
+	chan_desc = dmaengine_prep_dma_memcpy(dma_channel, dst_addr, src_addr, 1024, DMA_MEM_TO_MEM);
 	if(!chan_desc) {
 		pr_info("Error requesting dma channel\n");
 		status = PTR_ERR(chan_desc);
@@ -99,7 +102,7 @@ static int __init my_init(void)
 	 * "This allows drivers to push copies to HW in batches,
 	 *  reducing MMIO writes where possible."
 	 */
-	dma_async_issue_pending(chan);
+	dma_async_issue_pending(dma_channel);
 
 	// RELOOK: timeout feature doesn't seme ot work with the TI BBB ??
 	if (board == BOARD_IS_RPI) {
@@ -112,7 +115,7 @@ static int __init my_init(void)
 	}
 
 	// poll for transaction completion
-	status = dma_async_is_tx_complete(chan, cookie, NULL, NULL);
+	status = dma_async_is_tx_complete(dma_channel, cookie, NULL, NULL);
 	if(status == DMA_COMPLETE) {
 		pr_info("DMA transfer has completed!\n");
 		status = 0;
@@ -122,12 +125,12 @@ static int __init my_init(void)
 		pr_info("Error on DMA transfer\n");
 
 terminate_dma:
-	dmaengine_terminate_all(chan);
+	dmaengine_terminate_all(dma_channel);
 free:
-	dma_free_coherent(chan->device->dev, 1024, src_buf, src_addr);
-	dma_free_coherent(chan->device->dev, 1024, dst_buf, dst_addr);
+	dma_free_coherent(dma_channel->device->dev, 1024, src_buf, src_addr);
+	dma_free_coherent(dma_channel->device->dev, 1024, dst_buf, dst_addr);
 
-	dma_release_channel(chan);
+	dma_release_channel(dma_channel);
 	return status;
 }
 
