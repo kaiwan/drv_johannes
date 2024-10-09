@@ -48,7 +48,7 @@ static int __init my_init(void)
 	if (board == BOARD_IS_BBB)
 		pr_info("board set to TI BBB (Beagle Bone Black)\n");
 	else if (board == BOARD_IS_RPI)
-		pr_info("board set to Raspebrry Pi family\n");
+		pr_info("board set to Raspberry Pi family\n");
 
 	PRINT_CTX();
 
