@@ -50,9 +50,9 @@ KDRV=my_dma_memcpy
 sudo rmmod ${KDRV} 2>/dev/null
 echo -n "Loading kernel driver ${KMOD} ... "
 if [[ ${RET} -eq 1 ]] ; then
-   sudo insmod ${KDRV}.ko board=1  # TI BBB
+   sudo insmod ${KDRV}.ko board=1 || exit 1  # TI BBB
 elif [[ ${RET} -eq 2 ]] ; then
-   sudo insmod ${KDRV}.ko board=2  # RPi family
+   sudo insmod ${KDRV}.ko board=2 || exit 1 # RPi family
 fi
 echo "done (see dmesg)"
 exit 0
