@@ -1,0 +1,10 @@
+Simple RAM-to-RAM memcpy DMA test...
+Currently only supported on:
+- Raspberry Pi
+- TI BBB
+
+(won't run on x86 / x86 VMs).
+
+Alternate way to test DMA - a probably better one - is via the upstream
+kernel module 'dmatest' : https://www.kernel.org/doc/html/latest/driver-api/dmaengine/dmatest.html
+(under drivers/dma/dmatest in the kernel src tree). 
