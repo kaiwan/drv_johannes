@@ -32,7 +32,7 @@ static int __init my_init(void)
 	dma_addr_t src_addr, dst_addr;
 	u8 *src_buf, *dst_buf;
 	struct completion cmp;
-	int status;
+	int status = 0;
 
 	pr_info("init\n");
 	PRINT_CTX();
@@ -65,7 +65,7 @@ static int __init my_init(void)
 	chan_desc = dmaengine_prep_dma_memcpy(chan, dst_addr, src_addr, 1024, DMA_MEM_TO_MEM);
 	if(!chan_desc) {
 		pr_info("Error requesting dma channel\n");
-		status = -1;
+		status = PTR_ERR(chan_desc);
 		goto free;
 	}
 
@@ -83,9 +83,10 @@ static int __init my_init(void)
 	dma_async_issue_pending(chan);
 
 	// timeout of 3s
-	if(wait_for_completion_timeout(&cmp, msecs_to_jiffies(3000)) <= 0) {
+	if(wait_for_completion_timeout(&cmp, msecs_to_jiffies(3000)) == 0) {
 		pr_info("Timeout!\n");
-		status = -1;
+		status = -ETIMEDOUT;
+		goto terminate_dma;
 	}
 
 	// poll for transaction completion
@@ -95,17 +96,17 @@ static int __init my_init(void)
 		status = 0;
 		pr_info("After DMA Transfer: src_buf[0] = %x\n", src_buf[0]);
 		pr_info("After DMA Transfer: dst_buf[0] = %x\n", dst_buf[0]);
-	} else {
+	} else
 		pr_info("Error on DMA transfer\n");
-	}
 
+terminate_dma:
 	dmaengine_terminate_all(chan);
 free:
 	dma_free_coherent(chan->device->dev, 1024, src_buf, src_addr);
 	dma_free_coherent(chan->device->dev, 1024, dst_buf, dst_addr);
 
 	dma_release_channel(chan);
-	return 0;
+	return status;
 }
 
 /**
