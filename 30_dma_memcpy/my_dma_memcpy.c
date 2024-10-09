@@ -13,6 +13,13 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Johannes 4 GNU/Linux");
 MODULE_DESCRIPTION("A simple DMA example for copying data from RAM to RAM");
 
+static int board;
+module_param(board, int, 0);
+MODULE_PARM_DESC(board, "must set this to one of: 1 for TI BBB (Beagle Bone Black) -OR- 2 for Raspberry Pi : depending on the board you're running upon");
+
+#define BOARD_IS_BBB	1
+#define BOARD_IS_RPI	2
+
 void my_dma_transfer_completed(void *param) 
 {
 	struct completion *cmp = (struct completion *) param;
@@ -34,12 +41,24 @@ static int __init my_init(void)
 	struct completion cmp;
 	int status = 0;
 
-	pr_info("init\n");
+	if (board == 0) {
+		pr_info("Error: need to pass the board=<n> module parameter\n");
+		return -EINVAL;
+	}
+	if (board == BOARD_IS_BBB)
+		pr_info("board set to TI BBB (Beagle Bone Black)\n");
+	else if (board == BOARD_IS_RPI)
+		pr_info("board set to Raspebrry Pi family\n");
+
 	PRINT_CTX();
 
 	// set DMA capability mask
 	dma_cap_zero(mask);
-	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, mask);
+	if (board == BOARD_IS_BBB)
+		dma_cap_set(DMA_MEMCPY, mask);
+	else if (board == BOARD_IS_RPI)
+		dma_cap_set(DMA_MEMCPY | DMA_SLAVE | DMA_PRIVATE, mask);
+
 	// try to allocate an exclusive DMA channel
 	chan = dma_request_channel(mask, NULL, NULL);
 	if(!chan) {
@@ -82,11 +101,14 @@ static int __init my_init(void)
 	 */
 	dma_async_issue_pending(chan);
 
-	// timeout of 3s
-	if(wait_for_completion_timeout(&cmp, msecs_to_jiffies(3000)) == 0) {
-		pr_info("Timeout!\n");
-		status = -ETIMEDOUT;
-		goto terminate_dma;
+	// RELOOK: timeout feature doesn't seme ot work with the TI BBB ??
+	if (board == BOARD_IS_RPI) {
+		// timeout of 3s
+		if (wait_for_completion_timeout(&cmp, msecs_to_jiffies(3000)) == 0) {
+			pr_info("Timeout!\n");
+			status = -ETIMEDOUT;
+			goto terminate_dma;
+		}
 	}
 
 	// poll for transaction completion
