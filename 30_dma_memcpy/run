@@ -1,0 +1,58 @@
+#!/bin/bash
+
+detect_board()
+{
+  MODEL=$(cat /sys/firmware/devicetree/base/model 2>/dev/null)
+  set +e
+  [[ "${MODEL}" = "TI AM335x BeagleBone Black" ]] && return 1 || true # it's a TI BBB!
+  echo "${MODEL}" |grep "Raspberry Pi" >/dev/null && return 2 || true
+  # x86
+  hostnamectl |grep "Architecture:.*x86" >/dev/null && {
+    MODEL=$(hostnamectl |grep "Architecture:.*x86" |cut -d':' -f2| xargs)
+    return 3
+  }
+  return 0
+}
+
+detect_board_and_show()
+{
+detect_board
+RET=$?
+echo -n "Detected we're running on : "
+if [[ ${RET} -eq 1 ]] ; then
+   echo "${MODEL}" # TI BBB
+elif [[ ${RET} -eq 2 ]] ; then
+   echo "${MODEL}" # R Pi family
+elif [[ ${RET} -eq 3 ]] ; then
+   echo "${MODEL}" # x86[_64]
+elif [[ ${RET} -eq 0 ]] ; then
+   echo "* unknown board *   aborting"
+   exit 1
+fi
+}
+
+
+#--- 'main'
+
+num_chan=$(ls /sys/class/dma/dma*chan* |wc -w)
+[[ ${num_chan} -eq 0 ]] && {
+  echo "Couldn't find any available DMA channels (under /sys/class/dma/), aborting...
+(this can happen on a VM)"
+  exit 1
+}
+detect_board_and_show
+
+[[ ${RET} -eq 3 ]] && {
+  echo "module currently does not support the x86[_64]" ; exit 1
+}
+
+KDRV=my_dma_memcpy
+sudo rmmod ${KDRV} 2>/dev/null
+echo -n "Loading kernel driver ${KMOD} ... "
+if [[ ${RET} -eq 1 ]] ; then
+   sudo insmod ${KDRV}.ko board=1  # TI BBB
+elif [[ ${RET} -eq 2 ]] ; then
+   sudo insmod ${KDRV}.ko board=2  # RPi family
+fi
+echo "done (see dmesg)"
+exit 0
