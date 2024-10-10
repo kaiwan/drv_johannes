@@ -1,5 +1,5 @@
 #!/bin/bash
-# test the 20_dt_probe driver
+# test the 20_dt_probe driver on the Raspberry Pi
 source ../common
 DRV=dt_probe
 DTB=testoverlay.dtbo
