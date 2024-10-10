@@ -1,0 +1,33 @@
+/*
+ * DTBO - DT overlay - for the UART experiment (from 'Johannes drivers') on the TI BBB
+ * Inspired by - on the default Debian OS BBB rootfs :
+ *  /opt/source/dtb-5.10-ti/src/arm/overlays/BB-I2C2-BME680.dts
+ */
+/dts-v1/;
+/plugin/;
+
+/*
+ * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
+ */
+&{/chosen} {
+        overlays {
+                BB-TEST-OVERLAY.kernel = "Tue Oct 14 22:31:00 2000";
+		/* This should be '__TIMESTAMP__' but that's defined in kernel src only..
+		 * So have simply hardcoded it here to some timestamp
+		 */
+        };
+};
+
+/* Ref: https://elixir.bootlin.com/linux/v6.11.2/source/Documentation/devicetree/overlay-notes.rst
+ * --- overlay target location by explicit path
+ * [ocp = on-chip peripheral]
+ */
+&{/ocp} {
+	// our (pseudo) demo/test on-chip peripheral (ocp) named 'my_device'
+	my_device {
+		compatible = "brightlight,mydev";
+		status = "okay";
+		label = "Test";
+		my_value = <12>;
+	};
+};
