@@ -5,8 +5,9 @@ all: module dt
 
 module:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-dt: testoverlay.dts
-	dtc -@ -I dts -O dtb -o testoverlay.dtbo testoverlay.dts
+dt: rpi_testoverlay.dts bbb_testoverlay.dts
+	dtc -@ -I dts -O dtb -o rpi_testoverlay.dtbo rpi_testoverlay.dts
+	dtc -@ -I dts -O dtb -o bbb_testoverlay.dtbo bbb_testoverlay.dts
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 	rm -rf testoverlay.dtbo

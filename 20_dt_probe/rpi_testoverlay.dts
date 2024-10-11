@@ -1,17 +1,31 @@
+/*
+ * DTBO - DT overlay
+ * Inspired by - on the default Debian OS BBB rootfs :
+ *  /opt/source/dtb-5.10-ti/src/arm/overlays/BB-I2C2-BME680.dts
+ */
 /dts-v1/;
 /plugin/;
-/ {
-	/* meant for Raspberry Pi family */
-	compatible = "brcm,bcm2835";
-	fragment@0 {
-		target-path = "/";
-		__overlay__ {
-			my_device {
-				compatible = "brightlight,mydev";
-				status = "okay";
-				label = "Test";
-				my_value = <12>;
-			};
-		};
+
+/*
+ * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
+ */
+&{/chosen} {
+        overlays {
+                RPI-TEST-OVERLAY.kernel = "Tue Oct 14 22:31:00 2000";
+        };
+};
+
+/* Ref: https://elixir.bootlin.com/linux/v6.11.2/source/Documentation/devicetree/overlay-notes.rst
+ * --- overlay target location by explicit path
+ * [ocp = on-chip peripheral]
+ * Note: the R Pi family doesn't have the 'ocp' node, so we'll just use '/' as the parent node
+ */
+&{/} {
+	// our (pseudo) demo/test on-chip peripheral (ocp) named 'my_device'
+	my_device {
+		compatible = "brightlight,mydev";
+		status = "okay";
+		label = "Test";
+		my_value = <12>;
 	};
 };
