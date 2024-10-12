@@ -11,7 +11,7 @@
  */
 &{/chosen} {
         overlays {
-                BB-TEST-OVERLAY.kernel = "Tue Oct 14 22:31:00 2000";
+                BBB-TESTOVERLAY.kernel = "Tue Oct 14 22:30:00 2001";
 		/* This should be '__TIMESTAMP__' but that's defined in kernel src only..
 		 * So have simply hardcoded it here to some timestamp
 		 */
