@@ -16,7 +16,7 @@ MODULE_AUTHOR("Johannes 4 GNU/Linux");
 MODULE_DESCRIPTION("A simple LKM to parse the device tree for a specific device and its properties");
 
 /**
- * @brief This function is called on loading the driver 
+ * @brief This function is called on loading the driver
  */
 static int dt_probe(struct platform_device *pdev)
 {
@@ -27,24 +27,24 @@ static int dt_probe(struct platform_device *pdev)
 	dev_info(dev, "in the probe function!\n");
 
 	/* Check for device properties */
-	if(!device_property_present(dev, "label")) {
+	if (!device_property_present(dev, "label")) {
 		dev_err(dev, "Error! Device property 'label' not found!\n");
 		return -1;
 	}
-	if(!device_property_present(dev, "my_value")) {
+	if (!device_property_present(dev, "my_value")) {
 		dev_err(dev, "Error! Device property 'my_value' not found!\n");
 		return -1;
 	}
 
 	/* Read device properties */
 	ret = device_property_read_string(dev, "label", &label);
-	if(ret) {
+	if (ret) {
 		dev_err(dev, "Error! Could not read 'label'\n");
 		return -1;
 	}
-	dev_info(dev, "dt_probe - label: %s\n", label);
+	dev_info(dev, "label: %s\n", label);
 	ret = device_property_read_u32(dev, "my_value", &my_value);
-	if(ret) {
+	if (ret) {
 		dev_err(dev, "Error! Could not read 'my_value'\n");
 		return -1;
 	}
@@ -54,7 +54,7 @@ static int dt_probe(struct platform_device *pdev)
 }
 
 /**
- * @brief This function is called on unloading the driver 
+ * @brief This function is called on unloading the driver
  */
 static int dt_remove(struct platform_device *pdev)
 {
@@ -64,9 +64,9 @@ static int dt_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static struct of_device_id my_driver_ids[] = {
+static const struct of_device_id my_driver_ids[] = {
 	{
-		.compatible = "brightlight,mydev",
+	 .compatible = "mycorp,mydev",
 	}, { /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, my_driver_ids);
@@ -75,19 +75,23 @@ static struct platform_driver my_driver = {
 	.probe = dt_probe,
 	.remove = dt_remove,
 	.driver = {
-		.name = "my_device_driver",
-		.of_match_table = my_driver_ids,
+		   .name = "my_device_driver",
+		   .of_match_table = my_driver_ids,
 	},
 };
+
 /**
  * @brief This function is called, when the module is loaded into the kernel
  */
 static int __init my_init(void)
 {
+	int stat = 0;
+
 	pr_info("Loading the driver...\n");
-	if(platform_driver_register(&my_driver)) {
-		pr_info("Error! Could not load driver\n");
-		return -1;
+	stat = platform_driver_register(&my_driver);
+	if (stat < 0) {
+		pr_info("Error! Could not load driver (%d)\n", stat);
+		return stat;
 	}
 	return 0;
 }
