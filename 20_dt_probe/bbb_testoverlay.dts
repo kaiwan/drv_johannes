@@ -25,7 +25,7 @@
 &{/ocp} {
 	// our (pseudo) demo/test on-chip peripheral (ocp) named 'my_device'
 	my_device {
-		compatible = "brightlight,mydev";
+		compatible = "mycorp,mydev";
 		status = "okay";
 		label = "Test";
 		my_value = <12>;
