@@ -23,11 +23,11 @@
  * [ocp = on-chip peripheral]
  */
 &{/ocp} {
-	// our (pseudo) demo/test on-chip peripheral (ocp) named 'my_device'
+	// our (pseudo) demo on-chip peripheral (ocp) named 'my_device'
 	my_device {
 		compatible = "mycorp,mydev";
 		status = "okay";
-		label = "Test";
+		label = "demo device";
 		my_value = <12>;
 	};
 };
