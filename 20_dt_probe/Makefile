@@ -156,8 +156,8 @@ ifeq (,$(shell which dtc))
 endif
 	@echo "--- compiles the Device Tree Blob (DTB) [Overlay] from the DTS (ARM/PPC/etc) ---"
 #	dtc -@ -I dts -O dtb -o $(FNAME_C).dtb $(FNAME_C).dts
-	dtc -@ -I dts -O dtb -o BBB-TESTOVERLAY.dtbo bbb_testoverlay.dts
-	dtc -@ -I dts -O dtb -o rpi_testoverlay.dtbo rpi_testoverlay.dts
+	dtc -@ -I dts -O dtb -o BBB-TESTOVERLAY.dtbo bbb_testoverlay.dto
+	dtc -@ -I dts -O dtb -o rpi_testoverlay.dtbo rpi_testoverlay.dto
 	# DTBO - Device Tree Blob Overlay
 nsdeps:
 	@echo "--- nsdeps (namespace dependencies resolution; for possibly importing ns's) ---"
