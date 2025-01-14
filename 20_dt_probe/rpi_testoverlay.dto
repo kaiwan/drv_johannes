@@ -10,13 +10,12 @@
  * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
  */
 &{/chosen} {
-        overlays {
-                RPI-TEST-OVERLAY.kernel = "Tue Oct 14 22:31:00 2000";
+	overlays {
+		RPI-TEST-OVERLAY.kernel = "Tue Oct 14 22:31:00 2000";
 		/* This should be '__TIMESTAMP__' but that's defined in kernel src only..
-     	 	 * So have simply hardcoded it here to some timestamp
+		 * So have simply hardcoded it here to some timestamp
 		 */
-		
-        };
+	};
 };
 
 /* Ref: https://elixir.bootlin.com/linux/v6.11.2/source/Documentation/devicetree/overlay-notes.rst
@@ -25,7 +24,7 @@
  * Note: the R Pi family doesn't have the 'ocp' node, so we'll just use '/' as the parent node
  */
 &{/} {
-	// our (pseudo) demo/test on-chip peripheral (ocp) named 'my_device'
+	// Create a (pseudo) demo/test peripheral named 'my_device'
 	my_device {
 		compatible = "mycorp,mydev";
 		status = "okay";

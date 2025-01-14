@@ -80,7 +80,8 @@ static int __init ModuleInit(void)
 		return irq_number;
 	}
 
-	if(request_irq(irq_number, gpio_irq_handler, IRQF_TRIGGER_RISING, "my_gpio_irq", NULL) != 0){
+	if(request_irq(irq_number, gpio_irq_handler, IRQF_TRIGGER_RISING,
+		"my_gpio_irq", THIS_MODULE) != 0){
 		pr_info("Error!\nCan not request interrupt nr.: %d\n", irq_number);
 		gpio_free(GPIO_LINE);
 		return -1;
