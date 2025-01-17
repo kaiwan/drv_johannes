@@ -17,5 +17,5 @@
 To auto-load the kernel module, simply add it's name in the file
  `/etc/modules-load.d/modules.conf`
 
-FYI: the `Device Tree Overlay.pdf` PDF doc is a presentation originally made for
+FYI: the `Device_Tree_and_DTOverlays-Trg.pdf` PDF doc is a presentation originally made for
 the Bangalore Kernel Meetup in Nov 2024; it's been expanded upon since.
