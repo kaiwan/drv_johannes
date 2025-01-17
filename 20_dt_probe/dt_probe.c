@@ -29,24 +29,24 @@ static int dt_probe(struct platform_device *pdev)
 	/* Check for device properties */
 	if (!device_property_present(dev, "label")) {
 		dev_err(dev, "Error! Device property 'label' not found!\n");
-		return -1;
+		return -EINVAL;
 	}
 	if (!device_property_present(dev, "my_value")) {
 		dev_err(dev, "Error! Device property 'my_value' not found!\n");
-		return -1;
+		return -EINVAL;
 	}
 
 	/* Read device properties */
 	ret = device_property_read_string(dev, "label", &label);
 	if (ret) {
 		dev_err(dev, "Error! Could not read 'label'\n");
-		return -1;
+		return -EINVAL;
 	}
 	dev_info(dev, "label: %s\n", label);
 	ret = device_property_read_u32(dev, "my_value", &my_value);
 	if (ret) {
 		dev_err(dev, "Error! Could not read 'my_value'\n");
-		return -1;
+		return -EINVAL;
 	}
 	dev_info(dev, "my_value: %d\n", my_value);
 
@@ -88,6 +88,8 @@ static int __init my_init(void)
 	int stat = 0;
 
 	pr_info("Loading the driver...\n");
+
+	// Register with the platform bus driver
 	stat = platform_driver_register(&my_driver);
 	if (stat < 0) {
 		pr_info("Error! Could not load driver (%d)\n", stat);
@@ -101,7 +103,9 @@ static int __init my_init(void)
  */
 static void __exit my_exit(void)
 {
-	pr_info("Unload driver");
+	pr_info("Unloading driver...");
+
+	// Deregister with the platform bus driver
 	platform_driver_unregister(&my_driver);
 }
 

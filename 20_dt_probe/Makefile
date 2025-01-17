@@ -147,7 +147,7 @@ install:
 	sudo depmod
 	@echo " [If !debug and !(module signing), stripping debug info from ${KMODDIR}/extra/${FNAME_C}.ko]"
 	if [ "${DBG_STRIP}" = "y" ]; then \
-           sudo ${STRIP} --strip-debug ${KMODDIR}/extra/${FNAME_C}.ko ; \
+           sudo ${STRIP} --strip-debug ${KMODDIR}/extra/${FNAME_C}.ko* ; \
 	fi
 
 dt:
