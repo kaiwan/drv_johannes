@@ -158,7 +158,7 @@ endif
 #	dtc -@ -I dts -O dtb -o $(FNAME_C).dtb $(FNAME_C).dts
 	dtc -@ -I dts -O dtb -o BBB-TESTOVERLAY.dtbo bbb_testoverlay.dto
 	dtc -@ -I dts -O dtb -o rpi_testoverlay.dtbo rpi_testoverlay.dto
-	# DTBO - Device Tree Blob Overlay
+# .dtbo = Device Tree Blob Overlay
 nsdeps:
 	@echo "--- nsdeps (namespace dependencies resolution; for possibly importing ns's) ---"
 	make -C $(KDIR) M=$(PWD) nsdeps

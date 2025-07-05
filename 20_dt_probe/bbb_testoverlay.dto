@@ -19,7 +19,7 @@
 };
 
 /* Ref: https://elixir.bootlin.com/linux/v6.11.2/source/Documentation/devicetree/overlay-notes.rst
- * --- overlay target location by explicit path
+ * --- Modern approach: overlay target location by explicit path (not the older 'fragment' approach)
  * [ocp = on-chip peripheral]
  */
 &{/ocp} {
