@@ -9,6 +9,7 @@
 #include <linux/property.h>
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
+#include <linux/version.h>
 
 /* Meta Information */
 MODULE_LICENSE("GPL");
@@ -56,12 +57,18 @@ static int dt_probe(struct platform_device *pdev)
 /**
  * @brief This function is called on unloading the driver
  */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
 static int dt_remove(struct platform_device *pdev)
+#else
+static void dt_remove(struct platform_device *pdev)
+#endif
 {
 	struct device *dev = &pdev->dev;
 
 	dev_info(dev, "in the remove function\n");
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
 	return 0;
+#endif
 }
 
 static const struct of_device_id my_driver_ids[] = {
