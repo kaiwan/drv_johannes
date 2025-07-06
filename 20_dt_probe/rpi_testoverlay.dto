@@ -28,7 +28,7 @@
 	my_device {
 		compatible = "mycorp,mydev";
 		status = "okay";
-		label = "Test";
+		label = "demo device";
 		my_value = <12>;
 	};
 };
